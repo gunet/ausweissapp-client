@@ -1,0 +1,13 @@
+services:
+  ausweisapp:
+    image: governikus/ausweisapp2
+    ports:
+      - 127.0.0.1:24727:24727
+  ausweisapp-client:
+    build:
+      context: .
+      dockerfile: development.Dockerfile
+    volumes:
+      - .:/app
+    depends_on:
+      - ausweisapp
