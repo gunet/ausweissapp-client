@@ -50,30 +50,33 @@ sock.on('message', async (data, isBinary) => {
     const message = JSON.parse(data.toString());
 
     if (message.msg == 'ACCESS_RIGHTS') {
-        await sendMessage({ "cmd": "ACCEPT" });
+        onAccessRights();
     }
 
     if (message.msg == 'INSERT_CARD' && insertCardTry == 0) {
-        await sendMessage({
-            "cmd": "SET_CARD",
-            "name": "Simulator",
-            "simulator": sim
-        });
+        onInsertCard(message);
         insertCardTry++;
     }
 
 
     if (message.msg == 'ENTER_PIN' && pinEntered == 0) {
-        await sendMessage({"cmd": "SET_PIN" })
+        onEnterPin(message);
         pinEntered++;
     }
-
-    // if (message.msg == "AUTH" && message.result) {
-    //     logger.info(`Result = ${JSON.stringify(message.result)}`)
-    // }
-
-    // if (message.msg == 'ACCESS_RIGHTS') {
-    //     await sendMessage({ cmd: "ACCEPT" })
-    // }
-
 })
+
+const onInsertCard = async (message) => {
+    await sendMessage({
+        "cmd": "SET_CARD",
+        "name": "Simulator",
+        "simulator": sim
+    });
+}
+
+const onAccessRights = async (message) => {
+    await sendMessage({ "cmd": "ACCEPT" });
+}
+
+const onEnterPin = async (message) => {
+    await sendMessage({"cmd": "SET_PIN" }); // without a "value"
+}
