@@ -28,8 +28,8 @@ const port = '32772';
 class AusweisSocket {
     sock = null;
 
-    static insertCardTry = 0; 
-    static pinEntered = 0;
+    insertCardTry = 0; 
+    pinEntered = 0;
     
 
     constructor() {
@@ -42,6 +42,7 @@ class AusweisSocket {
     
     
     async onInsertCard(message) {
+        console.log("on insert card");
         await this.sendMessage({
             "cmd": "SET_CARD",
             "name": "Simulator",
@@ -61,7 +62,7 @@ class AusweisSocket {
 }
 
 app.get('/eID-Client', async (req, res) => {
-    await new Promise((resolve, reject) => {
+    const url = await new Promise((resolve, reject) => {
         const as = new AusweisSocket();
         as.sock.on('open', async (ws) => {
             await as.sendMessage({
@@ -73,7 +74,7 @@ app.get('/eID-Client', async (req, res) => {
     
         as.sock.on('message', async (data, isBinary) => {
             logger.info(`Message = ${messageCounter++}, ${data.toString()}`)
-    
+            console.log(messageCounter, data.toString());
             const message = JSON.parse(data.toString());
     
             if (message.msg == 'ACCESS_RIGHTS') {
@@ -82,22 +83,22 @@ app.get('/eID-Client', async (req, res) => {
     
             if (message.msg == 'INSERT_CARD' && as.insertCardTry == 0) {
                 as.onInsertCard(message);
-                insertCardTry++;
+                as.insertCardTry++;
             }
     
             if (message.msg == 'ENTER_PIN' && as.pinEntered == 0) {
                 as.onEnterPin(message);
-                pinEntered++;
+                as.pinEntered++;
             }
     
-            if (message.msg == 'AUTH') {
-                console.log("Got auth");
-                resolve();
+            if (message.msg == 'AUTH' && message.url) {
+                console.log("Got auth and url", message.url);
+                resolve(message.url);
             }
         })
     });
     res.writeHead(303, {
-        Location: "http://example.com"
+        Location: url 
     })
     res.end();
 })
