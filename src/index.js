@@ -36,6 +36,10 @@ class AusweisSocket {
         this.sock = new ws.WebSocket("ws://ausweisapp:24727/eID-Kernel");
     }
 
+    destroy() {
+        this.sock.close();
+    }
+
     async sendMessage(message) {
         this.sock.send(JSON.stringify(message))
     }
@@ -62,12 +66,17 @@ class AusweisSocket {
 }
 
 app.get('/eID-Client', async (req, res) => {
+    const tcTokenURL = req.query.tcTokenURL;
+    if (!tcTokenURL) {
+        return res.json({error: 'Missing tcTokenUrl'}).send(400);
+    }
     const url = await new Promise((resolve, reject) => {
         const as = new AusweisSocket();
         as.sock.on('open', async (ws) => {
             await as.sendMessage({
                 "cmd": "RUN_AUTH",
-                "tcTokenURL": "https://test.governikus-eid.de/AusweisAuskunft/WebServiceRequesterServlet",
+                // "tcTokenURL": "https://test.governikus-eid.de/AusweisAuskunft/WebServiceRequesterServlet",
+                "tcTokenURL": tcTokenURL,
                 "developerMode": true,
             })
         })
@@ -93,6 +102,7 @@ app.get('/eID-Client', async (req, res) => {
     
             if (message.msg == 'AUTH' && message.url) {
                 console.log("Got auth and url", message.url);
+                as.destroy();
                 resolve(message.url);
             }
         })
