@@ -3,6 +3,7 @@ import winston from 'winston';
 import fs from 'fs';
 import path from 'path';
 import express from 'express';
+import { config } from '../config/config.js';
 
 const sim = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'simulatorCard.json'), { encoding: 'utf8'}));
 
@@ -108,7 +109,7 @@ app.get('/eID-Client', async (req, res) => {
         })
     });
     res.writeHead(303, {
-        Location: url 
+        Location: `${config.walletBaseUrl}?finishUrl=${url}`,
     })
     res.end();
 })
