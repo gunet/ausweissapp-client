@@ -109,7 +109,7 @@ app.get('/eID-Client', async (req, res) => {
         })
     });
     res.writeHead(303, {
-        Location: `${config.walletBaseUrl}?finishUrl=${url}`,
+        Location: `${url}`,
     })
     res.end();
 })
