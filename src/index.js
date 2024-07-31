@@ -24,7 +24,7 @@ const logger = winston.createLogger({
 let messageCounter = 0;
 
 const app = express();
-const port = '32772';
+const port = '24727';
 
 class AusweisSocket {
     sock = null;
