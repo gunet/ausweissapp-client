@@ -1,3 +1,3 @@
 export const config = {
-    walletBaseUrl: "http://localhost:3000"
+    walletBaseUrl: "https://secure.wwwallet:8443"
 }
